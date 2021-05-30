@@ -92,15 +92,15 @@ composer.addPass( renderPass );
 // composer.addPass(texturePass)
 // const afterImagePass = new AfterimagePass()
 // composer.addPass(afterImagePass)
-const bokehPass = new BokehPass( scene, camera, {
-  focus: 1.0,
-  aperture: 0.025,
-  maxblur: 0.01,
+// const bokehPass = new BokehPass( scene, camera, {
+//   focus: 1.0,
+//   aperture: 0.025,
+//   maxblur: 0.01,
 
-  width: window.innerWidth,
-  height: window.innerHeight
-} )
-composer.addPass(bokehPass)
+//   width: window.innerWidth,
+//   height: window.innerHeight
+// } )
+// composer.addPass(bokehPass)
 
 export function animate() {
   TWEEN.update();
