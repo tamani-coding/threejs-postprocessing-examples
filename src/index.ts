@@ -4,6 +4,28 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
+// COMPOSER
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass.js';
+import { MaskPass, ClearMaskPass } from 'three/examples/jsm/postprocessing/MaskPass.js';
+import { TexturePass } from 'three/examples/jsm/postprocessing/TexturePass.js';
+import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+
+import { BleachBypassShader } from 'three/examples/jsm/shaders/BleachBypassShader.js';
+import { ColorifyShader } from 'three/examples/jsm/shaders/ColorifyShader.js';
+import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurShader.js';
+import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader.js';
+import { SepiaShader } from 'three/examples/jsm/shaders/SepiaShader.js';
+import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { LuminosityShader } from 'three/examples/jsm/shaders/LuminosityShader.js';
+
 // CAMERA
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1500);
 camera.position.set(-35, 70, 100);
@@ -24,7 +46,7 @@ const updateCamera = function (object : {x: number; y: number; z:number; lookAtX
 tweenCamera1.onUpdate(updateCamera)
 tweenCamera2.onUpdate(updateCamera)
 
-tweenCamera1.start()
+// tweenCamera1.start()
 
 // RENDERER
 const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
@@ -48,10 +70,41 @@ scene.background = new THREE.Color(0xbfd1e5);
 // CONTROLS
 const controls = new OrbitControls(camera, renderer.domElement);
 
+// POST PROCESSING COMPOSER
+const composer = new EffectComposer( renderer );
+const renderPass = new RenderPass( scene, camera );
+composer.addPass( renderPass );
+// const glitchPass = new GlitchPass();
+// composer.addPass( glitchPass );
+// const luminosityPass = new ShaderPass( LuminosityShader );
+// composer.addPass( luminosityPass );
+// const bloomPass = new BloomPass( 0.5, 6 ); // ??
+// composer.addPass(bloomPass);
+// const filmPass = new FilmPass(0.5)
+// composer.addPass(filmPass)
+// const dotScreenPass = new DotScreenPass()
+// composer.addPass(dotScreenPass)
+// const renderMask = new MaskPass( scene, camera ); // ??
+// composer.addPass(renderMask)
+// const clearMaskPass = new ClearMaskPass() // ??
+// composer.addPass(clearMaskPass)
+// const texturePass = new TexturePass(composer.renderTarget2.texture) // ??
+// composer.addPass(texturePass)
+// const afterImagePass = new AfterimagePass()
+// composer.addPass(afterImagePass)
+const bokehPass = new BokehPass( scene, camera, {
+  focus: 1.0,
+  aperture: 0.025,
+  maxblur: 0.01,
+
+  width: window.innerWidth,
+  height: window.innerHeight
+} )
+composer.addPass(bokehPass)
 
 export function animate() {
   TWEEN.update();
-  renderer.render(scene, camera);
+  composer.render()
   requestAnimationFrame(animate);
 }
 
