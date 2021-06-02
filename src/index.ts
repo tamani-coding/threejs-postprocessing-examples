@@ -229,14 +229,19 @@ function unrealBloom() {
 }
 // unrealBloom()
 
+function afterImagePass () {
+  const afterImagePass = new AfterimagePass()
+  composer.addPass(afterImagePass)
+}
+// afterImagePass()
+
 // const renderMask = new MaskPass( scene, camera ); // ??
 // composer.addPass(renderMask)
 // const clearMaskPass = new ClearMaskPass() // ??
 // composer.addPass(clearMaskPass)
 // const texturePass = new TexturePass(composer.renderTarget2.texture) // ??
 // composer.addPass(texturePass)
-// const afterImagePass = new AfterimagePass()
-// composer.addPass(afterImagePass)
+
 
 
 export function animate() {
