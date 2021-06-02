@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
+import { GUI } from './gui/dat.gui.module.js';
+
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
@@ -70,16 +72,163 @@ controls.target.y = 4
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
-// const glitchPass = new GlitchPass();
-// composer.addPass( glitchPass );
-// const luminosityPass = new ShaderPass( LuminosityShader );
-// composer.addPass( luminosityPass );
-// const bloomPass = new BloomPass( 0.5, 6 ); // ??
-// composer.addPass(bloomPass);
-// const filmPass = new FilmPass(0.5)
-// composer.addPass(filmPass)
-// const dotScreenPass = new DotScreenPass()
-// composer.addPass(dotScreenPass)
+
+// GLITCH PASS
+function glitchPass() {
+  const glitchPass = new GlitchPass();
+  composer.addPass(glitchPass);
+}
+// glitchPass()
+
+// DEPTH OF FIELD
+function depthOfField() {
+
+  const bokehPass = new BokehPass(scene, camera, {
+    focus: 1.0,
+    aperture: 0.025,
+    maxblur: 0.01,
+
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
+  composer.addPass(bokehPass)
+
+  const effectController = {
+
+    focus: 10.0,
+    aperture: 5,
+    maxblur: 0.01
+
+  };
+  const matChanger = function () {
+
+    bokehPass.uniforms["focus"].value = effectController.focus;
+    bokehPass.uniforms["aperture"].value = effectController.aperture * 0.00001;
+    bokehPass.uniforms["maxblur"].value = effectController.maxblur;
+
+  };
+  const gui = new GUI();
+  gui.add(effectController, "focus", 1.0, 500.0, 10).onChange(matChanger);
+  gui.add(effectController, "aperture", 0, 10, 0.1).onChange(matChanger);
+  gui.add(effectController, "maxblur", 0.0, 0.01, 0.001).onChange(matChanger);
+  matChanger();
+}
+// depthOfField()
+
+function bloom() { // ?
+  const bloomPass = new BloomPass(0.5);
+  composer.addPass(bloomPass);
+}
+// bloom()
+
+function filmPass() {
+  const filmPass = new FilmPass(0.5)
+  composer.addPass(filmPass)
+}
+// filmPass()
+
+function dotScreenPass() {
+  const dotScreenPass = new DotScreenPass()
+  composer.addPass(dotScreenPass)
+}
+// dotScreenPass()
+
+function halfTonePass() {
+  const halfTonePass = new HalftonePass(window.innerWidth, window.innerHeight, {
+    shape: 1,
+    radius: 4,
+    rotateR: Math.PI / 5,
+    rotateB: Math.PI / 5 * 2,
+    rotateG: Math.PI / 5 * 3,
+    scatter: 1,
+    blending: 1,
+    blendingMode: 1,
+    greyscale: false,
+    disable: false
+  })
+  composer.addPass(halfTonePass)
+
+
+  const effectController = {
+    shape: 1,
+    radius: 4,
+    rotateR: Math.PI / 5,
+    rotateB: Math.PI / 5 * 2,
+    rotateG: Math.PI / 5 * 3,
+    scatter: 1,
+  };
+  const matChanger = function () {
+    halfTonePass.uniforms["shape"].value = effectController.shape;
+    halfTonePass.uniforms["radius"].value = effectController.radius;
+    halfTonePass.uniforms["rotateR"].value = effectController.rotateR;
+    halfTonePass.uniforms["rotateB"].value = effectController.rotateB;
+    halfTonePass.uniforms["rotateG"].value = effectController.rotateG;
+    halfTonePass.uniforms["scatter"].value = effectController.scatter;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "shape", 1.0, 10.0, 1).onChange(matChanger);
+  gui.add(effectController, "radius", 1.0, 10.0, 1).onChange(matChanger);
+  gui.add(effectController, "rotateR", 1.0, 10.0, 1).onChange(matChanger);
+  gui.add(effectController, "rotateB", 1.0, 10.0, 1).onChange(matChanger);
+  gui.add(effectController, "rotateG", 1.0, 10.0, 1).onChange(matChanger);
+  gui.add(effectController, "scatter", 1.0, 10.0, 1).onChange(matChanger);
+  matChanger();
+}
+// halfTonePass()
+
+function pixelShader() {
+  const pixelPass = new ShaderPass(PixelShader);
+  pixelPass.uniforms["resolution"].value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+  pixelPass.uniforms["resolution"].value.multiplyScalar(window.devicePixelRatio);
+  pixelPass.uniforms["pixelSize"].value = 8;
+  composer.addPass(pixelPass);
+
+  const effectController = {
+    pixelSize: 8,
+  };
+  const matChanger = function () {
+    pixelPass.uniforms["pixelSize"].value = effectController.pixelSize;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "pixelSize", 1.0, 20.0, 1).onChange(matChanger);
+  matChanger();
+}
+// pixelShader()
+
+function edgeDetection() {
+  const effectGrayScale = new ShaderPass(LuminosityShader);
+  composer.addPass(effectGrayScale);
+  const effectSobel = new ShaderPass(SobelOperatorShader);
+  effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
+  effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
+  composer.addPass(effectSobel);
+}
+// edgeDetection()
+
+function unrealBloom() {
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85)
+  const params = {
+    exposure: 0.9,
+    bloomStrength: 1.5,
+    bloomThreshold: 0.5,
+    bloomRadius: 0
+  };
+  renderer.toneMappingExposure = Math.pow(params.exposure, 4.0);
+  composer.addPass(bloomPass)
+
+  const matChanger = function () {
+    bloomPass.threshold = params.bloomThreshold;
+    bloomPass.strength = params.bloomStrength;
+    bloomPass.radius = params.bloomRadius;
+  };
+  const gui = new GUI();
+  gui.add(params, "bloomStrength", 0.0, 10.0, 0.1).onChange(matChanger);
+  gui.add(params, "bloomThreshold", 0.0, 1.0, 0.1).onChange(matChanger);
+  gui.add(params, "bloomRadius", 0.0, 10.0, 0.1).onChange(matChanger);
+  matChanger();
+}
+// unrealBloom()
+
 // const renderMask = new MaskPass( scene, camera ); // ??
 // composer.addPass(renderMask)
 // const clearMaskPass = new ClearMaskPass() // ??
@@ -88,54 +237,7 @@ composer.addPass(renderPass);
 // composer.addPass(texturePass)
 // const afterImagePass = new AfterimagePass()
 // composer.addPass(afterImagePass)
-// const bokehPass = new BokehPass( scene, camera, {
-//   focus: 1.0,
-//   aperture: 0.025,
-//   maxblur: 0.01,
 
-//   width: window.innerWidth,
-//   height: window.innerHeight
-// } )
-// composer.addPass(bokehPass)
-// const halfTonePass = new HalftonePass(window.innerWidth, window.innerHeight, {
-//   shape: 1,
-//   radius: 4,
-//   rotateR: Math.PI / 12,
-//   rotateB: Math.PI / 12 * 2,
-//   rotateG: Math.PI / 12 * 3,
-//   scatter: 0,
-//   blending: 1,
-//   blendingMode: 1,
-//   greyscale: false,
-//   disable: false
-// })
-// composer.addPass(halfTonePass)
-// const pixelPass = new ShaderPass( PixelShader );
-// pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
-// pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
-// pixelPass.uniforms[ "pixelSize" ].value = 8;
-// console.log(window.devicePixelRatio)
-// composer.addPass( pixelPass );
-// SOBEL EDGE DETECTION
-// const effectGrayScale = new ShaderPass( LuminosityShader );
-// composer.addPass( effectGrayScale );
-// const effectSobel = new ShaderPass( SobelOperatorShader );
-// effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
-// effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
-// composer.addPass( effectSobel );
-// BLOOM
-// const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 )
-// const params = {
-//   exposure: 0.9,
-//   bloomStrength: 1.5,
-//   bloomThreshold: 0.5,
-//   bloomRadius: 0
-// };
-// renderer.toneMappingExposure = Math.pow( params.exposure, 4.0 );
-// bloomPass.threshold = params.bloomThreshold;
-// bloomPass.strength = params.bloomStrength;
-// bloomPass.radius = params.bloomRadius;
-// composer.addPass(bloomPass)
 
 export function animate() {
   composer.render()
