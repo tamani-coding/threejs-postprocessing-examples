@@ -91,6 +91,25 @@ export function filmPass(composer: EffectComposer) {
         0,  // grayscale
     )
     composer.addPass(filmPass)
+
+    const effectController = {
+        nIntensity: 0.5,
+        sIntensity: 0.5,
+        sCount: 0,
+        grayscale: 0
+    };
+    const matChanger = function () {
+        filmPass.uniforms['nIntensity'].value = effectController.nIntensity
+        filmPass.uniforms['sIntensity'].value = effectController.sIntensity
+        filmPass.uniforms['sCount'].value = effectController.sCount
+        filmPass.uniforms['grayscale'].value = effectController.grayscale <= 0 ? false : true
+    };
+    const gui = new GUI();
+    gui.add(effectController, "nIntensity", 0.0, 1.0, 0.01).onChange(matChanger);
+    gui.add(effectController, "sIntensity", 0.0, 1.0, 0.01).onChange(matChanger);
+    gui.add(effectController, "sCount", 0.0, 128.0, 1).onChange(matChanger);
+    gui.add(effectController, "grayscale", 0.0, 1.0, 1).onChange(matChanger);
+    matChanger();
 }
 
 export function dotScreenPass(composer: EffectComposer) {
