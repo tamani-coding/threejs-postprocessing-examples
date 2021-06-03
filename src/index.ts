@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
 import { GUI } from './gui/dat.gui.module.js';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -360,8 +359,6 @@ function gamma () {
 // composer.addPass(clearMaskPass)
 // const texturePass = new TexturePass(composer.renderTarget2.texture) // ??
 // composer.addPass(texturePass)
-
-
 
 export function animate() {
   composer.render()
