@@ -352,7 +352,7 @@ function gamma () {
   var gamma = new ShaderPass(GammaCorrectionShader);
   composer.addPass(gamma);
 }
-gamma()
+// gamma()
 
 // const renderMask = new MaskPass( scene, camera ); // ??
 // composer.addPass(renderMask)
