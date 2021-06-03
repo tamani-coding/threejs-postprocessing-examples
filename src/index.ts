@@ -353,6 +353,14 @@ function gamma () {
 }
 // gamma()
 
+function fxaa () {
+  var fxaa = new ShaderPass(FXAAShader);
+  fxaa.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
+  fxaa.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
+  composer.addPass(fxaa);
+}
+// fxaa()
+
 export function animate() {
   composer.render()
   controls.update()
