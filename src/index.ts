@@ -307,7 +307,52 @@ function verticalBlur () {
   gui.add(effectController, "v", 0.0, 0.1, 0.001).onChange(matChanger);
   matChanger();
 }
-verticalBlur()
+// verticalBlur()
+
+function sepia () {
+  var sepia = new ShaderPass(SepiaShader);
+  sepia.uniforms['amount'].value =  1;
+  composer.addPass(sepia);
+
+  const effectController = {
+    amount: 0,
+  };
+  const matChanger = function () {
+    sepia.uniforms['amount'].value =  effectController.amount;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "amount", 0.0, 10, 0.1).onChange(matChanger);
+  matChanger();
+}
+// sepia()
+
+function vignette () {
+  var vignette = new ShaderPass(VignetteShader);
+  vignette.uniforms['offset'].value = 0.5
+  vignette.uniforms['darkness'].value = 0.8
+  composer.addPass(vignette);
+
+  
+  const effectController = {
+    offset: 0,
+    darkness: 0
+  };
+  const matChanger = function () {
+    vignette.uniforms['offset'].value =  effectController.offset;
+    vignette.uniforms['darkness'].value =  effectController.darkness;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "offset", 0.0, 10, 0.1).onChange(matChanger);
+  gui.add(effectController, "darkness", 0.0, 10, 0.1).onChange(matChanger);
+  matChanger();
+}
+// vignette()
+
+function gamma () {
+  var gamma = new ShaderPass(GammaCorrectionShader);
+  composer.addPass(gamma);
+}
+gamma()
 
 // const renderMask = new MaskPass( scene, camera ); // ??
 // composer.addPass(renderMask)
