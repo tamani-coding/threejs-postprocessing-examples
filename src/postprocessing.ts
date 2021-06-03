@@ -86,7 +86,7 @@ export function bloom(composer: EffectComposer) { // ?
 export function filmPass(composer: EffectComposer) {
     const filmPass = new FilmPass(
         0.35,   // noise intensity
-        0.025,  // scanline intensity
+        0.5,  // scanline intensity
         648,    // scanline count
         0,  // grayscale
     )
