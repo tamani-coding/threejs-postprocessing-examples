@@ -34,6 +34,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { GodRaysFakeSunShader, GodRaysDepthMaskShader, GodRaysCombineShader, GodRaysGenerateShader } from 'three/examples/jsm/shaders/GodRaysShader.js';
 import { PixelShader } from 'three/examples/jsm/shaders/PixelShader.js';
 import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader.js';
+import { FocusShader } from 'three/examples/jsm/shaders/FocusShader.js';
 
 // CAMERA
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1500);
@@ -176,35 +177,6 @@ function halfTonePass() {
 }
 // halfTonePass()
 
-function pixelShader() {
-  const pixelPass = new ShaderPass(PixelShader);
-  pixelPass.uniforms["resolution"].value = new THREE.Vector2(window.innerWidth, window.innerHeight);
-  pixelPass.uniforms["resolution"].value.multiplyScalar(window.devicePixelRatio);
-  pixelPass.uniforms["pixelSize"].value = 8;
-  composer.addPass(pixelPass);
-
-  const effectController = {
-    pixelSize: 8,
-  };
-  const matChanger = function () {
-    pixelPass.uniforms["pixelSize"].value = effectController.pixelSize;
-  };
-  const gui = new GUI();
-  gui.add(effectController, "pixelSize", 1.0, 20.0, 1).onChange(matChanger);
-  matChanger();
-}
-// pixelShader()
-
-function edgeDetection() {
-  const effectGrayScale = new ShaderPass(LuminosityShader);
-  composer.addPass(effectGrayScale);
-  const effectSobel = new ShaderPass(SobelOperatorShader);
-  effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
-  effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
-  composer.addPass(effectSobel);
-}
-// edgeDetection()
-
 function unrealBloom() {
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85)
   const params = {
@@ -234,6 +206,108 @@ function afterImagePass () {
   composer.addPass(afterImagePass)
 }
 // afterImagePass()
+
+function pixelShader() {
+  const pixelPass = new ShaderPass(PixelShader);
+  pixelPass.uniforms["resolution"].value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+  pixelPass.uniforms["resolution"].value.multiplyScalar(window.devicePixelRatio);
+  pixelPass.uniforms["pixelSize"].value = 8;
+  composer.addPass(pixelPass);
+
+  const effectController = {
+    pixelSize: 8,
+  };
+  const matChanger = function () {
+    pixelPass.uniforms["pixelSize"].value = effectController.pixelSize;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "pixelSize", 1.0, 20.0, 1).onChange(matChanger);
+  matChanger();
+}
+// pixelShader()
+
+function edgeDetection() {
+  const effectGrayScale = new ShaderPass(LuminosityShader);
+  composer.addPass(effectGrayScale);
+  const effectSobel = new ShaderPass(SobelOperatorShader);
+  effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
+  effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
+  composer.addPass(effectSobel);
+}
+// edgeDetection()
+
+function bleachByPass () {
+  var bleachFilter = new ShaderPass(BleachBypassShader);
+  composer.addPass(bleachFilter);
+
+  const effectController = {
+    opacity: 0.5,
+  };
+  const matChanger = function () {
+    bleachFilter.uniforms["opacity"].value = effectController.opacity;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "opacity", 0.5, 10.0, 0.1).onChange(matChanger);
+  matChanger();
+}
+// bleachByPass()
+
+function colorify () {
+  var effectColorify = new ShaderPass(ColorifyShader);
+  effectColorify.uniforms['color'].value.setRGB(0.8, 0.8, 0.8);
+  composer.addPass(effectColorify);
+
+  const effectController = {
+    red: 0.7,
+    green: 0.5,
+    blue: 0.3,
+  };
+  const matChanger = function () {
+    effectColorify.uniforms['color'].value.setRGB(effectController.red, 
+      effectController.green, 
+      effectController.blue);
+  };
+  const gui = new GUI();
+  gui.add(effectController, "red", 0.7, 1.0, 0.01).onChange(matChanger);
+  gui.add(effectController, "green", 0.5, 1.0, 0.01).onChange(matChanger);
+  gui.add(effectController, "blue", 0.3, 1.0, 0.01).onChange(matChanger);
+  matChanger();
+}
+// colorify()
+
+function horizontalBlur () {
+  var horizontalBlur = new ShaderPass(HorizontalBlurShader);
+  horizontalBlur.uniforms['h'].value =  1 / window.innerHeight;
+  composer.addPass(horizontalBlur);
+
+  const effectController = {
+    h: 1 / window.innerHeight,
+  };
+  const matChanger = function () {
+    horizontalBlur.uniforms['h'].value =  effectController.h;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "h", 0.0, 0.1, 0.001).onChange(matChanger);
+  matChanger();
+}
+// horizontalBlur()
+
+function verticalBlur () {
+  var verticalBlur = new ShaderPass(VerticalBlurShader);
+  verticalBlur.uniforms['v'].value =  1 / window.innerWidth;
+  composer.addPass(verticalBlur);
+
+  const effectController = {
+    v: 1 / window.innerHeight,
+  };
+  const matChanger = function () {
+    verticalBlur.uniforms['v'].value =  effectController.v;
+  };
+  const gui = new GUI();
+  gui.add(effectController, "v", 0.0, 0.1, 0.001).onChange(matChanger);
+  matChanger();
+}
+verticalBlur()
 
 // const renderMask = new MaskPass( scene, camera ); // ??
 // composer.addPass(renderMask)
