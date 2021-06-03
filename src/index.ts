@@ -66,7 +66,7 @@ scene.background = new THREE.Color(0xbfd1e5);
 // CONTROLS
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotate = true
-controls.target.y = 4
+controls.target.y = 5
 
 // POST PROCESSING COMPOSER
 const composer = new EffectComposer(renderer);
@@ -353,13 +353,6 @@ function gamma () {
 }
 // gamma()
 
-// const renderMask = new MaskPass( scene, camera ); // ??
-// composer.addPass(renderMask)
-// const clearMaskPass = new ClearMaskPass() // ??
-// composer.addPass(clearMaskPass)
-// const texturePass = new TexturePass(composer.renderTarget2.texture) // ??
-// composer.addPass(texturePass)
-
 export function animate() {
   composer.render()
   controls.update()
@@ -384,7 +377,7 @@ dirLight.shadow.camera.bottom = -10
 
 function createGround() {
   let ground = new THREE.Mesh(new THREE.CylinderBufferGeometry(13, 13, 1, 64),
-    new THREE.MeshPhongMaterial({ color: 0x139436 }));
+    new THREE.MeshPhongMaterial({ color: 0x0a690a }));
   ground.position.y = -0.5
   ground.castShadow = true;
   ground.receiveShadow = true;
