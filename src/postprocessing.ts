@@ -2,6 +2,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import * as THREE from 'three'
 import { GUI } from './gui/dat.gui.module.js';
 
+import { AdaptiveToneMappingPass } from 'three/examples/jsm/postprocessing/AdaptiveToneMappingPass.js';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
@@ -23,7 +24,12 @@ import { LuminosityShader } from 'three/examples/jsm/shaders/LuminosityShader.js
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { PixelShader } from 'three/examples/jsm/shaders/PixelShader.js';
 import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 
+export function adaptiveToneMappingPass (composer: EffectComposer) {
+    const adaptiveToneMapping = new AdaptiveToneMappingPass(true)
+    composer.addPass(adaptiveToneMapping)
+}
 
 // GLITCH PASS
 export function glitchPass(composer: EffectComposer) {
@@ -66,12 +72,24 @@ export function depthOfField(composer: EffectComposer, scene: THREE.Scene, camer
 }
 
 export function bloom(composer: EffectComposer) { // ?
-    const bloomPass = new BloomPass(0.5);
+    const bloomPass = new BloomPass(      1,    // strength
+        25,   // kernel size
+        4,    // sigma ?
+        256,  // blur render target resolution
+        );
     composer.addPass(bloomPass);
+
+    var copyPass = new ShaderPass( CopyShader );
+    composer.addPass( copyPass );
 }
 
 export function filmPass(composer: EffectComposer) {
-    const filmPass = new FilmPass(0.5)
+    const filmPass = new FilmPass(
+        0.35,   // noise intensity
+        0.025,  // scanline intensity
+        648,    // scanline count
+        0,  // grayscale
+    )
     composer.addPass(filmPass)
 }
 
