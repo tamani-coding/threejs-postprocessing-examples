@@ -107,7 +107,7 @@ export function filmPass(composer: EffectComposer) {
     const gui = new GUI();
     gui.add(effectController, "nIntensity", 0.0, 1.0, 0.01).onChange(matChanger);
     gui.add(effectController, "sIntensity", 0.0, 1.0, 0.01).onChange(matChanger);
-    gui.add(effectController, "sCount", 0.0, 128.0, 1).onChange(matChanger);
+    gui.add(effectController, "sCount", 0.0, 512.0, 1).onChange(matChanger);
     gui.add(effectController, "grayscale", 0.0, 1.0, 1).onChange(matChanger);
     matChanger();
 }
